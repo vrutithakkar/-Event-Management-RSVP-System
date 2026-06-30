@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Upcoming Events</h2>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-6">
+        <input type="text" name="q" class="form-control" placeholder="Search by title or description" value="{{ query }}">
+    </div>
+    <div class="col-md-4">
+        <input type="text" name="location" class="form-control" placeholder="Filter by location" value="{{ location }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+    </div>
+</form>
+
+{% for event in events %}
+
+<div class="card mb-3 shadow-sm">
+
+    <div class="card-body">
+
+        <h4>{{ event.title }}</h4>
+
+        <p>{{ event.description|truncatewords:20 }}</p>
+
+        <p>
+            <strong>Location:</strong> {{ event.location }}
+        </p>
+
+        <p>
+            <strong>Date:</strong> {{ event.event_date }}
+            |
+            <strong>Time:</strong> {{ event.event_time }}
+        </p>
+
+        <p class="text-muted">
+            <strong>RSVPs:</strong> {{ event.rsvp_set.count }}
+        </p>
+
+        <a href="{% url 'event_detail' event.id %}" class="btn btn-primary">
+            View
+        </a>
+
+        {% if user.is_authenticated %}
+            {% if event.id in rsvped_event_ids %}
+                <a href="{% url 'toggle_rsvp' event.id %}" class="btn btn-outline-danger">Cancel RSVP</a>
+            {% else %}
+                <a href="{% url 'toggle_rsvp' event.id %}" class="btn btn-outline-success">RSVP</a>
+            {% endif %}
+        {% endif %}
+
+        {% if user == event.created_by %}
+
+        <a href="{% url 'update_event' event.id %}" class="btn btn-warning">
+            Edit
+        </a>
+
+        <a href="{% url 'delete_event' event.id %}" class="btn btn-danger">
+            Delete
+        </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<div class="alert alert-info">
+    No events found.
+</div>
+
+{% endfor %}
+
+{% endblock %}
